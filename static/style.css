@@ -1,0 +1,185 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header .navbar {
+    max-width: 1000px;
+    margin: auto;
+    padding: 0 15px;
+}
+
+header .navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+header .navbar-nav .nav-link {
+    font-size: 16px;
+    margin: 0 10px;
+}
+
+header .navbar-nav .nav-link:hover, 
+header .navbar-nav .nav-link.active {
+    text-decoration: underline;
+}
+
+header .btn-logout {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+header .btn-logout:hover {
+    text-decoration: underline;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    margin: 0 0 20px;
+    color: #007bff;
+}
+
+form {
+    margin: 20px 0;
+}
+
+form .form-control {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+form button {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+li {
+    background: #fff;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    transition: background 0.3s ease;
+}
+
+li:hover {
+    background: #f0f0f0;
+}
+
+.note-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.note-header span {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.note-header .actions {
+    display: flex;
+    gap: 10px;
+}
+
+.note-header .actions button {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.note-header .actions button.edit {
+    background-color: #28a745;
+    color: white;
+}
+
+.note-header .actions button.edit:hover {
+    background-color: #218838;
+}
+
+.note-header .actions button.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.note-header .actions button.delete:hover {
+    background-color: #c82333;
+}
+
+.note-content {
+    width: 100%;
+    margin-top: 10px;
+    display: none;
+    flex-direction: column;
+}
+
+.note.open .note-content {
+    display: flex;
+}
+
+.note-content textarea {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.note-content .note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.note-content .note-footer span {
+    font-size: 12px;
+    color: #999;
+}
+
+.note-content .note-footer button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.note-content .note-footer button:hover {
+    background-color: #0069d9;
+}

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Note Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        header {
+            background-color: #343a40;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header .navbar {
+            max-width: 1000px;
+            margin: auto;
+            padding: 0 15px;
+        }
+
+        header .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        header .navbar-nav .nav-link {
+            font-size: 16px;
+            margin: 0 10px;
+        }
+
+        header .navbar-nav .nav-link:hover, 
+        header .navbar-nav .nav-link.active {
+            text-decoration: underline;
+        }
+
+        header .btn-logout {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        header .btn-logout:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #007bff;
+            margin: 0 0 20px;
+        }
+
+        .note-header .note-title {
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        .note-header .actions button {
+            font-size: 14px;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .note-header .actions .edit {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .note-header .actions .edit:hover {
+            background-color: #218838;
+        }
+
+        .note-header .actions .delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .note-header .actions .delete:hover {
+            background-color: #c82333;
+        }
+
+        .note-content {
+            display: none;
+            margin-top: 10px;
+            flex-direction: column;
+        }
+
+        .note.open .note-content {
+            display: flex;
+        }
+
+        .note-content textarea {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+
+        .note-content .note-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .note-content .note-footer span {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .note-content .note-footer button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .note-content .note-footer button:hover {
+            background-color: #0069d9;
+        }
+
+        .search-bar {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <span class="navbar-brand">Note Manager</span>
+                <div class="collapse navbar-collapse justify-content-end">
+                    <ul class="navbar-nav align-items-center">
+                        <li class="nav-item">
+                            <span id="user-info" class="nav-link"></span>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/profile" id="profile-link" class="nav-link" style="display: none;">Moje Konto</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/login" id="login-link" class="nav-link">Logowanie</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/register" id="register-link" class="nav-link">Rejestracja</a>
+                        </li>
+                        <li class="nav-item">
+                            <button id="logout-link" class="btn-logout nav-link" style="display: none;">Wyloguj</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <h1 class="my-4">Notatki</h1>
+        <form id="addNoteForm">
+            <input type="text" name="title" class="form-control" placeholder="Tytuł notatki" required>
+            <textarea name="content" class="form-control" placeholder="Napisz notatke..." required></textarea>
+            <input type="text" name="tags" class="form-control" placeholder="Tagi (oddzielane przecinkiem)">
+            <select name="category" class="form-control mt-2">
+                <option value="General">Ogólne</option>
+                <option value="Work">Praca</option>
+                <option value="Personal">Prywatne</option>
+                <option value="Urgent">Pilne</option>
+            </select>
+            <button type="submit" class="btn btn-primary mt-2">Dodaj</button>
+        </form>
+        <div class="search-bar">
+            <input type="text" id="searchInput" class="form-control" placeholder="Wyszukaj">
+        </div>
+        <ul id="notes" class="list-group mt-4">
+            <!-- Notes will be rendered here -->
+        </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('auth-token');
+            const user = localStorage.getItem('user');
+            const loginLink = document.getElementById('login-link');
+            const registerLink = document.getElementById('register-link');
+            const logoutLink = document.getElementById('logout-link');
+            const profileLink = document.getElementById('profile-link');
+            const userInfo = document.getElementById('user-info');
+
+            if (token) {
+                loginLink.style.display = 'none';
+                registerLink.style.display = 'none';
+                profileLink.style.display = 'inline';
+                userInfo.textContent = `Witaj, ${user}`;
+                logoutLink.style.display = 'inline';
+            } else {
+                loginLink.style.display = 'inline';
+                registerLink.style.display = 'inline';
+                profileLink.style.display = 'none';
+                logoutLink.style.display = 'none';
+                userInfo.textContent = '';
+            }
+
+            document.getElementById('logout-link').addEventListener('click', () => {
+                localStorage.removeItem('auth-token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+            });
+
+            document.getElementById('addNoteForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = e.target.title.value;
+                const content = e.target.content.value;
+                const tags = e.target.tags.value.split(',').map(tag => tag.trim());
+                const category = e.target.category.value;
+                const token = localStorage.getItem('auth-token');
+
+                const res = await fetch('/api/notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'auth-token': token
+                    },
+                    body: JSON.stringify({ title, content, tags, category })
+                });
+
+                if (res.ok) {
+                    fetchNotes();
+                    e.target.reset();
+                } else {
+                    const error = await res.text();
+                    console.error(error);
+                }
+            });
+
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                fetchNotes(e.target.value);
+            });
+
+            async function fetchNotes(query = '') {
+                const token = localStorage.getItem('auth-token');
+                const res = await fetch('/api/notes', {
+                    headers: {
+                        'auth-token': token,
+                        'query': query
+                    }
+                });
+
+                if (!res.ok) {
+                    const error = await res.text();
+                    console.error(error);
+                    return;
+                }
+
+                const notes = await res.json();
+                const notesList = document.getElementById('notes');
+                notesList.innerHTML = '';
+                notes.forEach(note => {
+                    const li = document.createElement('li');
+                    li.classList.add('list-group-item', 'note');
+                    li.innerHTML = `<div class="note-header d-flex justify-content-between align-items-center">
+                                        <span class="note-title" onclick="toggleNoteContent('${note._id}')">${note.title}</span>
+                                        <div class="actions">
+                                            <button class="btn btn-success btn-sm edit" onclick="editNoteForm('${note._id}', '${note.title}', '${note.content}', '${note.tags.join(', ')}', '${note.category}')">Edytuj</button>
+                                            <button class="btn btn-danger btn-sm delete" onclick="deleteNote('${note._id}')">Usuń</button>
+                                        </div>
+                                    </div>
+                                    <div class="note-content mt-3">
+                                        <textarea class="form-control">${note.content}</textarea>
+                                        <input type="text" class="form-control mt-2" value="${note.tags.join(', ')}">
+                                        <select class="form-control mt-2">
+                                            <option value="General" ${note.category === 'General' ? 'selected' : ''}>General</option>
+                                            <option value="Work" ${note.category === 'Work' ? 'selected' : ''}>Work</option>
+                                            <option value="Personal" ${note.category === 'Personal' ? 'selected' : ''}>Personal</option>
+                                            <option value="Urgent" ${note.category === 'Urgent' ? 'selected' : ''}>Urgent</option>
+                                        </select>
+                                        <div class="note-footer mt-2 d-flex justify-content-between align-items-center">
+                                            <span>${new Date(note.date).toLocaleString()}</span>
+                                            <button class="btn btn-primary btn-sm" onclick="saveNoteContent('${note._id}')">Save</button>
+                                        </div>
+                                    </div>`;
+                    notesList.appendChild(li);
+                });
+            }
+
+            async function deleteNote(id) {
+                const token = localStorage.getItem('auth-token');
+                const res = await fetch(`/api/notes/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'auth-token': token
+                    }
+                });
+
+                if (res.ok) {
+                    fetchNotes();
+                } else {
+                    const error = await res.text();
+                    console.error(error);
+                }
+            }
+
+            window.toggleNoteContent = (id) => {
+                const note = document.querySelector(`li.note span.note-title[onclick="toggleNoteContent('${id}')"]`).parentElement.parentElement;
+                note.classList.toggle('open');
+            };
+
+            window.editNoteForm = (id, title, content, tags, category) => {
+                const note = document.querySelector(`li.note span.note-title[onclick="toggleNoteContent('${id}')"]`).parentElement.parentElement;
+                note.classList.add('open');
+                const textarea = note.querySelector('textarea');
+                const tagInput = note.querySelector('input[type="text"]');
+                const categorySelect = note.querySelector('select');
+                textarea.value = content;
+                tagInput.value = tags;
+                categorySelect.value = category;
+            };
+
+            window.saveNoteContent = async (id) => {
+                const note = document.querySelector(`li.note span.note-title[onclick="toggleNoteContent('${id}')"]`).parentElement.parentElement;
+                const newContent = note.querySelector('textarea').value;
+                const newTags = note.querySelector('input[type="text"]').value.split(',').map(tag => tag.trim());
+                const newCategory = note.querySelector('select').value;
+                const token = localStorage.getItem('auth-token');
+
+                const res = await fetch(`/api/notes/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'auth-token': token
+                    },
+                    body: JSON.stringify({ content: newContent, tags: newTags, category: newCategory })
+                });
+
+                if (res.ok) {
+                    fetchNotes();
+                } else {
+                    const error = await res.text();
+                    console.error(error);
+                }
+            };
+
+            fetchNotes();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4 text-center">Profil</h1>
+        <form id="profileForm">
+            <div class="mb-3">
+                <input type="text" name="username" class="form-control" placeholder="Nazwa uzytkownika" required>
+            </div>
+            <div class="mb-3">
+                <input type="email" name="email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" name="password" class="form-control" placeholder="Nowe hasło">
+                <small class="form-text text-muted">Zostaw puste, aby zachować aktualne hasło.</small>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Aktualizuj profil</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('auth-token');
+
+            const res = await fetch('/api/user/profile', {
+                headers: {
+                    'auth-token': token
+                }
+            });
+
+            if (res.ok) {
+                const user = await res.json();
+                document.querySelector('[name="username"]').value = user.username;
+                document.querySelector('[name="email"]').value = user.email;
+            } else {
+                const error = await res.text();
+                console.error(error);
+            }
+
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = e.target.username.value;
+                const email = e.target.email.value;
+                const password = e.target.password.value;
+
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'auth-token': token
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                if (res.ok) {
+                    alert('Profile updated successfully.');
+                    window.location.href = '/';
+                } else {
+                    const error = await res.text();
+                    alert(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
