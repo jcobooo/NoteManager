@@ -5,14 +5,14 @@ const jwt = require('jsonwebtoken');
 const path = require('path');
 const app = express();
 
-const mongoURI = 'mongodb+srv://jcobo:Admin1234@kasyno.vmgozls.mongodb.net/?retryWrites=true&w=majority&appName=Kasyno';
+const mongoURI = process.env.COSMOS_DB_URI;
 
 // Połączenie z MongoDB
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Error connecting to MongoDB:', err));
+}).then(() => console.log('Connected to Azure Cosmos DB'))
+  .catch(err => console.error('Error connecting to Azure Cosmos DB:', err));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
